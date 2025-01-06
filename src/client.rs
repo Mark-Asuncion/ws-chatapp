@@ -103,14 +103,6 @@ impl StreamHandler<Result<Message, ProtocolError>> for UserSession {
                             });
                         }
                         "/leave" => {
-                            if command_list.len() != 2 || command_list[1].is_empty() {
-                                self.srv.do_send(MError {
-                                    id: self.id,
-                                    etype: "Invalid Argument".to_string(),
-                                    what: command_list[1].to_string()
-                                });
-                                return;
-                            }
                             self.srv.do_send(Join {
                                 id: self.id,
                                 room: String::from("main")
