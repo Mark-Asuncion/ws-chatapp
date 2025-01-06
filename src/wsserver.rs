@@ -85,6 +85,12 @@ pub struct ListRooms {
 
 #[derive(Message)]
 #[rtype(result = "()")]
+pub struct ListUsers {
+    pub id: Uuid
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
 pub struct MError {
     pub id: Uuid,
     pub etype: String,
@@ -250,6 +256,24 @@ impl Handler<ListRooms> for ChatServer {
                 names_str += format!("{}\n", key).as_str();
             }
 
+            addr.do_send(MMessage::from(&names_str, T_SENDER_SYSTEM, T_SENDER_SYSTEM));
+        }
+    }
+}
+
+impl Handler<ListUsers> for ChatServer {
+    type Result = ();
+
+    fn handle(&mut self, msg: ListUsers, _: &mut Self::Context) -> Self::Result {
+
+        let mut names_str = "\n".to_string();
+        for (uid, (u, _)) in self.sessions.iter() {
+            if uid == &msg.id {
+                continue;
+            }
+            names_str += format!("{}\n", u.name.as_str()).as_str();
+        }
+        if let Some((_, addr)) = self.sessions.get(&msg.id) {
             addr.do_send(MMessage::from(&names_str, T_SENDER_SYSTEM, T_SENDER_SYSTEM));
         }
     }

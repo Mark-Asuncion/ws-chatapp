@@ -42,7 +42,8 @@ function CommandListMenu(props: CommandListMenuProps) {
         ["/name <name>", "Set name", "/name "],
         ["/join <room name>", "Join a room", "/join "],
         ["/leave", "Leave a room", "/leave"],
-        ["/list", "List available rooms", "/list"]
+        ["/list rooms", "List available rooms", "/list rooms"],
+        ["/list users", "List all users", "/list users"]
     ];
     let menuitems: JSX.Element[] = [];
 

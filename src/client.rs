@@ -5,7 +5,7 @@ use actix_ws::ProtocolError;
 use uuid::Uuid;
 use actix_web_actors::ws::Message;
 
-use crate::wsserver::{ChatServer, MMessage, Connect, Disconnect, ClientMessage, Join, ListRooms, UserRename, MError, GetInfo};
+use crate::wsserver::{ChatServer, MMessage, Connect, Disconnect, ClientMessage, Join, ListRooms, UserRename, MError, GetInfo, ListUsers};
 
 const HB_INTERVAL: Duration = Duration::from_secs(5);
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
@@ -123,7 +123,28 @@ impl StreamHandler<Result<Message, ProtocolError>> for UserSession {
                             });
                         }
                         "/list" => {
-                            self.srv.do_send(ListRooms { id: self.id });
+                            if command_list.len() != 2 || command_list[1].is_empty() {
+                                self.srv.do_send(MError {
+                                    id: self.id,
+                                    etype: "Invalid Argument".to_string(),
+                                    what: command_list[1].to_string()
+                                });
+                                return;
+                            }
+
+                            if command_list[1] == "rooms" {
+                                self.srv.do_send(ListRooms { id: self.id });
+                            }
+                            else if command_list[1] == "users" {
+                                self.srv.do_send(ListUsers { id: self.id });
+                            }
+                            else {
+                                self.srv.do_send(MError {
+                                    id: self.id,
+                                    etype: "Invalid Argument".to_string(),
+                                    what: command_list[1].to_string()
+                                });
+                            }
                         }
                         "/get-info" => {
                             self.srv.do_send(GetInfo { id: self.id });
